@@ -731,16 +731,28 @@ function getInitials(name) {
   return name.split(/[\s.\-]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
 }
 
+function nameToSlug(name) {
+  return name.toLowerCase()
+    .replace(/[áàâä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i')
+    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u').replace(/[ñ]/g,'n')
+    .replace(/[ć]/g,'c').replace(/[š]/g,'s').replace(/[ž]/g,'z')
+    .replace(/[č]/g,'c').replace(/[ø]/g,'o').replace(/[ő]/g,'o')
+    .replace(/[ğ]/g,'g').replace(/[ı]/g,'i').replace(/[ş]/g,'s')
+    .replace(/[đ]/g,'d').replace(/[ā]/g,'a')
+    .replace(/[^\w\s-]/g,'').replace(/[\s.]+/g,'-')
+    .replace(/-+/g,'-').replace(/^-|-$/g,'');
+}
+
 function playerPhotoHTML(p, accent) {
   const initials = getInitials(p.name);
   const fallbackStyle = 'background:'+accent+';color:#fff;font-size:0.62rem;font-weight:800;';
-  if (p.ssid) {
-    return '<img class="player-photo" src="https://api.sofascore.app/api/v1/player/'+p.ssid+'/image"'
-      +' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\';"'
-      +' alt="'+p.name+'" loading="lazy">'
-      +'<span class="player-avatar" style="'+fallbackStyle+'display:none">'+initials+'</span>';
-  }
-  return '<span class="player-avatar" style="'+fallbackStyle+'">'+initials+'</span>';
+  const slug = nameToSlug(p.name);
+  const localSrc = 'images/players/' + slug + '.jpg';
+  // Try local image first → falls back to initials avatar on error
+  return '<img class="player-photo" src="'+localSrc+'"'
+    +' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\';"'
+    +' alt="'+p.name+'" loading="lazy">'
+    +'<span class="player-avatar" style="'+fallbackStyle+'display:none">'+initials+'</span>';
 }
 
 function computeTop11Set(players, roundKey) {
