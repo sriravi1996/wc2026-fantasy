@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WC 2026 Fantasy Draft</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0d1a;
+    --card: #161630;
+    --card2: #1c1c3a;
+    --gold: #C9A800;
+    --gold-dim: #a08700;
+    --red: #C62828;
+    --border: rgba(201,168,0,0.18);
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --radius: 12px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3a 50%, #0d0d1a 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(201,168,0,0.2);
+  }
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--gold), #f5d020);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 16px rgba(201,168,0,0.4);
+    flex-shrink: 0;
+  }
+  .logo-text h1 {
+    font-size: 1.15rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--gold), #ffe566);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .logo-text p { font-size: 0.72rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  /* ── NAV TABS ── */
+  nav { display: flex; gap: 4px; }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim);
+    padding: 8px 18px; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .tab-btn.active {
+    color: var(--gold);
+    background: rgba(201,168,0,0.12);
+    border-bottom: 2px solid var(--gold);
+  }
+  /* ── MAIN ── */
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 20px 60px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), #f5d020);
+  }
+  .kpi-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .kpi-val {
+    font-size: 1.9rem; font-weight: 900;
+    background: linear-gradient(90deg, var(--gold), #ffe566);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .kpi-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .kpi-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .section-header h2 {
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--text); letter-spacing: 0.5px;
+  }
+  .section-header .badge {
+    background: rgba(201,168,0,0.15);
+    color: var(--gold); font-size: 0.72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    border: 1px solid rgba(201,168,0,0.3);
+  }
+  .section-divider {
+    width: 36px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    border-radius: 2px; margin-top: 4px;
+  }
+  /* ── LEADERBOARD ── */
+  .leaderboard { margin-bottom: 28px; }
+  .lb-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  .lb-row:hover { background: rgba(255,255,255,0.03); }
+  .lb-rank {
+    width: 24px; text-align: center;
+    font-size: 0.78rem; font-weight: 800; color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .lb-rank.gold { color: var(--gold); }
+  .lb-rank.silver { color: #aaa; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-name { min-width: 160px; font-size: 0.85rem; font-weight: 600; }
+  .lb-bar-wrap { flex: 1; height: 22px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .lb-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 8px; }
+  .lb-bar span { font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
+  .lb-meta { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; min-width: 70px; text-align: right; }
+  /* ── TOP 10 ── */
+  .top10-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .top10-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .top10-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .top10-info { flex: 1; min-width: 0; }
+  .top10-name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top10-bid { font-size: 1.1rem; font-weight: 900; color: var(--gold); }
+  .top10-team { font-size: 0.72rem; margin-top: 2px; font-weight: 600; }
+  /* ── TEAMS GRID ── */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .team-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .team-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.5); }
+  .team-card-top {
+    height: 6px;
+  }
+  .team-card-body { padding: 18px; }
+  .team-card-name { font-size: 1rem; font-weight: 800; margin-bottom: 12px; }
+  .team-stats {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .team-stat {
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 0.8rem; text-align: center;
+    min-width: 54px;
+  }
+  .team-stat-val { font-weight: 800; font-size: 1rem; }
+  .team-stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .team-pos-row {
+    display: flex; gap: 6px; margin-bottom: 14px;
+  }
+  .pos-chip {
+    flex: 1; text-align: center; padding: 4px 6px;
+    border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+  }
+  .team-top3 { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; }
+  .team-top3-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 8px; }
+  .team-top3-player { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 3px 0; }
+  .team-top3-player span:first-child { color: var(--text-dim); }
+  .team-top3-player span:last-child { font-weight: 700; color: var(--gold); }
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 500;
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%; max-width: 720px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    margin: auto;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-size: 1.2rem; font-weight: 800; }
+  .modal-close {
+    background: rgba(255,255,255,0.08); border: none; cursor: pointer;
+    color: var(--text); width: 32px; height: 32px;
+    border-radius: 50%; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.15); }
+  .modal-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
+  .modal-pos-group { margin-bottom: 20px; }
+  .modal-pos-label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-dim); margin-bottom: 8px; font-weight: 700;
+  }
+  .modal-player-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; border-radius: 8px;
+    transition: background 0.12s;
+  }
+  .modal-player-row:hover { background: rgba(255,255,255,0.04); }
+  .modal-player-name { flex: 1; font-size: 0.88rem; font-weight: 600; }
+  .modal-player-country { font-size: 0.75rem; color: var(--text-dim); }
+  .modal-player-bid { font-size: 0.95rem; font-weight: 800; color: var(--gold); min-width: 52px; text-align: right; }
+  /* ── PLAYERS TAB ── */
+  .filters {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .search-wrap { flex: 1; min-width: 200px; position: relative; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 12px 9px 36px;
+    font-size: 0.85rem; outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-icon {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); font-size: 0.9rem;
+  }
+  .filter-select {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 12px;
+    font-size: 0.85rem; outline: none; cursor: pointer; min-width: 130px;
+  }
+  .filter-select:focus { border-color: var(--gold); }
+  .players-count { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 14px; }
+  .players-list { display: flex; flex-direction: column; gap: 4px; }
+  .player-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 8px;
+    background: var(--card);
+    border: 1px solid transparent;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .player-row:hover { background: var(--card2); border-color: var(--border); }
+  .player-flag { font-size: 1.2rem; flex-shrink: 0; }
+  .player-info { flex: 1; min-width: 0; }
+  .player-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .player-name { font-size: 0.88rem; font-weight: 700; }
+  .player-country-text { font-size: 0.72rem; color: var(--text-dim); }
+  .player-team-chip {
+    font-size: 0.68rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .player-bid-col { font-size: 0.95rem; font-weight: 800; color: var(--gold); min-width: 56px; text-align: right; }
+  .unsold-badge {
+    font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+    background: rgba(198,40,40,0.2); color: #ef5350;
+    border: 1px solid rgba(198,40,40,0.3); border-radius: 10px;
+  }
+  /* ── POSITION BADGES ── */
+  .pos-badge {
+    font-size: 0.65rem; font-weight: 800; padding: 2px 7px;
+    border-radius: 4px; letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .pos-GK { background: rgba(245,124,0,0.2); color: #f57c00; border: 1px solid rgba(245,124,0,0.35); }
+  .pos-DEF { background: rgba(25,118,210,0.2); color: #42a5f5; border: 1px solid rgba(25,118,210,0.35); }
+  .pos-MID { background: rgba(56,142,60,0.2); color: #66bb6a; border: 1px solid rgba(56,142,60,0.35); }
+  .pos-FWD { background: rgba(198,40,40,0.2); color: #ef5350; border: 1px solid rgba(198,40,40,0.35); }
+  /* ── STATS TAB ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .stats-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .stats-card.full { grid-column: 1 / -1; }
+  .stats-card h3 {
+    font-size: 0.88rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-dim); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stat-bar-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 9px;
+  }
+  .stat-bar-label { min-width: 120px; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-bar-wrap { flex: 1; height: 18px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .stat-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--gold), #f5d020); display: flex; align-items: center; }
+  .stat-bar-val { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; min-width: 36px; text-align: right; }
+  /* ── FACTS BOX ── */
+  .facts-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .facts-list li {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border-left: 3px solid var(--gold);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  /* ── UNSOLD GRID ── */
+  .unsold-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .unsold-card {
+    background: var(--card2); border: 1px solid rgba(198,40,40,0.2);
+    border-radius: 10px; padding: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    text-align: center;
+  }
+  .unsold-card-name { font-size: 0.8rem; font-weight: 700; }
+  .unsold-card-meta { font-size: 0.7rem; color: var(--text-dim); }
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: 1fr; }
+    .stats-card.full { grid-column: 1; }
+  }
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header-inner { padding: 10px 0; }
+    .tab-btn { padding: 7px 12px; font-size: 0.78rem; }
+    .lb-name { min-width: 110px; }
+    main { padding: 16px 12px 40px; }
+    .top10-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .teams-grid { grid-template-columns: 1fr; }
+    .modal-body { max-height: 60vh; }
+  }
+  @media (max-width: 420px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi-val { font-size: 1.5rem; }
+  }
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,0,0.3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(201,168,0,0.5); }
+  /* ── POT BADGE ── */
+  .pot-badge {
+    font-size: 0.62rem; font-weight: 700;
+    padding: 1px 6px; border-radius: 8px;
+    background: rgba(255,255,255,0.08); color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  /* ── ANIMATIONS ── */
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* Avatar */
+  .avatar { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">⚽</div>
+      <div class="logo-text">
+        <h1>WC 2026 FANTASY DRAFT</h1>
+        <p>USA · Canada · Mexico · Jun 11 – Jul 19, 2026</p>
+      </div>
+    </div>
+    <nav>
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="teams">Teams</button>
+      <button class="tab-btn" data-tab="players">Players</button>
+      <button class="tab-btn" data-tab="stats">Stats</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- OVERVIEW -->
+  <div class="tab-panel active fade-in" id="tab-overview">
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="card leaderboard" style="margin-bottom:28px;">
+      <div style="padding:20px 20px 0;">
+        <div class="section-header">
+          <div>
+            <h2>Team Spend Leaderboard</h2>
+            <div class="section-divider"></div>
+          </div>
+          <span class="badge">14 Teams</span>
+        </div>
+      </div>
+      <div id="leaderboard-list" style="padding-bottom:8px;"></div>
+    </div>
+    <div>
+      <div class="section-header" style="margin-bottom:16px;">
+        <div>
+          <h2>Top 10 Most Expensive Players</h2>
+          <div class="section-divider"></div>
+        </div>
+      </div>
+      <div class="top10-grid" id="top10-grid"></div>
+    </div>
+  </div>
+
+  <!-- TEAMS -->
+  <div class="tab-panel" id="tab-teams">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div>
+        <h2>All Teams</h2>
+        <div class="section-divider"></div>
+      </div>
+      <span class="badge">14 Franchises</span>
+    </div>
+    <div class="teams-grid" id="teams-grid"></div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div class="tab-panel" id="tab-players">
+    <div class="section-header" style="margin-bottom:16px;">
+      <div>
+        <h2>All Players</h2>
+        <div class="section-divider"></div>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search player or country…">
+      </div>
+      <select class="filter-select" id="pos-filter">
+        <option value="">All Positions</option>
+        <option value="GK">GK</option>
+        <option value="DEF">DEF</option>
+        <option value="MID">MID</option>
+        <option value="FWD">FWD</option>
+      </select>
+      <select class="filter-select" id="team-filter">
+        <option value="">All Teams</option>
+      </select>
+      <select class="filter-select" id="sort-select">
+        <option value="bid-desc">Bid: High → Low</option>
+        <option value="bid-asc">Bid: Low → High</option>
+        <option value="name-asc">Name: A → Z</option>
+      </select>
+    </div>
+    <div class="players-count" id="players-count"></div>
+    <div class="players-list" id="players-list"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="tab-panel" id="tab-stats">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div>
+        <h2>Draft Statistics</h2>
+        <div class="section-divider"></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stats-card">
+        <h3>🌍 Country Distribution <span style="font-size:0.7rem;color:var(--text-dim)">(sold players)</span></h3>
+        <div id="country-chart"></div>
+      </div>
+      <div class="stats-card">
+        <h3>💼 Spend by Pot</h3>
+        <div id="pot-chart"></div>
+      </div>
+      <div class="stats-card">
+        <h3>✨ Interesting Facts</h3>
+        <ul class="facts-list" id="facts-list"></ul>
+      </div>
+      <div class="stats-card">
+        <h3>❌ Unsold Notable Players <span style="font-size:0.7rem;color:var(--text-dim)">(Pot 1 &amp; 2)</span></h3>
+        <div class="unsold-grid" id="unsold-grid"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title"></div>
+        <div id="modal-subtitle" style="font-size:0.8rem;color:var(--text-dim);margin-top:3px;"></div>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const TEAMS = [
+  {name:"Baby's Day Out",color:"#1E88E5"},
+  {name:"Dadmots Army",color:"#43A047"},
+  {name:"RK Express",color:"#E53935"},
+  {name:"Geriatric Galacticos",color:"#8E24AA"},
+  {name:"Ballbreakers",color:"#FB8C00"},
+  {name:"Nutmeg Cartel",color:"#6D4C41"},
+  {name:"Wirtz Case Scenario",color:"#00ACC1"},
+  {name:"Schweinsteiger FC",color:"#D81B60"},
+  {name:"SIIIUper Team",color:"#F9A825"},
+  {name:"Sunday the King Plays",color:"#3949AB"},
+  {name:"Xenathon Returns",color:"#5E35B1"},
+  {name:"Trikaal",color:"#880E4F"},
+  {name:"Hitman Stars",color:"#37474F"},
+  {name:"Stretford Royalty",color:"#B71C1C"},
+];
+
+const TEAM_COLOR = {};
+TEAMS.forEach(t => TEAM_COLOR[t.name] = t.color);
+
+const PLAYERS = [
+// POT 1 FWD
+{name:"H. Kane",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"FWD",pot:1,bid:141,team:"Baby's Day Out",ssid:80490},
+{name:"K. Mbappe",country:"France",flag:"🇫🇷",pos:"FWD",pot:1,bid:180,team:"Dadmots Army",ssid:280096},
+{name:"E. Haaland",country:"Norway",flag:"🇳🇴",pos:"FWD",pot:1,bid:97,team:"RK Express",ssid:839956},
+{name:"L. Messi",country:"Argentina",flag:"🇦🇷",pos:"FWD",pot:1,bid:127,team:"Geriatric Galacticos",ssid:1094},
+{name:"C. Ronaldo",country:"Portugal",flag:"🇵🇹",pos:"FWD",pot:1,bid:145,team:"Ballbreakers",ssid:31094},
+{name:"L. Martinez",country:"Argentina",flag:"🇦🇷",pos:"FWD",pot:1,bid:35,team:"Nutmeg Cartel",ssid:842634},
+{name:"J. Alvarez",country:"Argentina",flag:"🇦🇷",pos:"FWD",pot:1,bid:92,team:"Wirtz Case Scenario",ssid:877008},
+{name:"M. Oyarzabal",country:"Spain",flag:"🇪🇸",pos:"FWD",pot:1,bid:101,team:"Wirtz Case Scenario",ssid:694376},
+{name:"A. Isak",country:"Sweden",flag:"🇸🇪",pos:"FWD",pot:1,bid:55,team:"Schweinsteiger FC",ssid:null},
+{name:"O. Watkins",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"FWD",pot:1,bid:16,team:"Baby's Day Out",ssid:null},
+// POT 1 MID
+{name:"Vinicius Jr.",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:1,bid:100,team:"Trikaal",ssid:659622},
+{name:"O. Dembele",country:"France",flag:"🇫🇷",pos:"MID",pot:1,bid:92,team:"SIIIUper Team",ssid:346100},
+{name:"L. Yamal",country:"Spain",flag:"🇪🇸",pos:"MID",pot:1,bid:124,team:"Sunday the King Plays",ssid:1461188},
+{name:"M. Salah",country:"Egypt",flag:"🇪🇬",pos:"MID",pot:1,bid:46,team:"Sunday the King Plays",ssid:108703},
+{name:"B. Saka",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:1,bid:95,team:"Sunday the King Plays",ssid:998979},
+{name:"M. Olise",country:"France",flag:"🇫🇷",pos:"MID",pot:1,bid:120,team:"Xenathon Returns",ssid:null},
+{name:"B. Fernandes",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:1,bid:165,team:"SIIIUper Team",ssid:349933},
+{name:"J. Bellingham",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:1,bid:100,team:"Nutmeg Cartel",ssid:876283},
+{name:"Raphinha",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:1,bid:130,team:"Stretford Royalty",ssid:580890},
+{name:"L. Diaz",country:"Colombia",flag:"🇨🇴",pos:"MID",pot:1,bid:95,team:"Schweinsteiger FC",ssid:826480},
+// POT 1 DEF
+{name:"A. Hakimi",country:"Morocco",flag:"🇲🇦",pos:"DEF",pot:1,bid:50,team:"RK Express",ssid:672854},
+{name:"N. Mendes",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:1,bid:91,team:"Sunday the King Plays",ssid:971320},
+{name:"D. Dumfries",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:1,bid:97,team:"RK Express",ssid:714020},
+{name:"Gabriel",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:1,bid:86,team:"Baby's Day Out",ssid:827117},
+{name:"A. Rudiger",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:1,bid:20,team:"Nutmeg Cartel",ssid:159082},
+{name:"J. Kimmich",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:1,bid:75,team:"Hitman Stars",ssid:281448},
+{name:"V. van Dijk",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:1,bid:71,team:"Xenathon Returns",ssid:271843},
+{name:"Pedro Porro",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:1,bid:20,team:"Trikaal",ssid:null},
+{name:"A. Laporte",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:1,bid:61,team:"Nutmeg Cartel",ssid:217491},
+{name:"M. Llorente",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:1,bid:50,team:"Xenathon Returns",ssid:null},
+// POT 1 GK
+{name:"E. Martinez",country:"Argentina",flag:"🇦🇷",pos:"GK",pot:1,bid:30,team:"Nutmeg Cartel",ssid:36666},
+{name:"Ederson",country:"Brazil",flag:"🇧🇷",pos:"GK",pot:1,bid:null,team:null,ssid:null},
+{name:"Alisson",country:"Brazil",flag:"🇧🇷",pos:"GK",pot:1,bid:30,team:"Trikaal",ssid:109013},
+{name:"M. Maignan",country:"France",flag:"🇫🇷",pos:"GK",pot:1,bid:34,team:"Baby's Day Out",ssid:154694},
+{name:"Raya",country:"Spain",flag:"🇪🇸",pos:"GK",pot:1,bid:1,team:"Wirtz Case Scenario",ssid:null},
+{name:"U. Simon",country:"Spain",flag:"🇪🇸",pos:"GK",pot:1,bid:33,team:"Wirtz Case Scenario",ssid:null},
+{name:"M. Neuer",country:"Germany",flag:"🇩🇪",pos:"GK",pot:1,bid:27,team:"Dadmots Army",ssid:36722},
+{name:"T. Courtois",country:"Belgium",flag:"🇧🇪",pos:"GK",pot:1,bid:20,team:"Wirtz Case Scenario",ssid:54811},
+{name:"D. Costa",country:"Portugal",flag:"🇵🇹",pos:"GK",pot:1,bid:41,team:"Stretford Royalty",ssid:null},
+{name:"J. Pickford",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"GK",pot:1,bid:41,team:"Stretford Royalty",ssid:206107},
+// POT 2 FWD
+{name:"O. Marmoush",country:"Egypt",flag:"🇪🇬",pos:"FWD",pot:2,bid:46,team:"Geriatric Galacticos",ssid:693892},
+{name:"K. Havertz",country:"Germany",flag:"🇩🇪",pos:"FWD",pot:2,bid:59,team:"SIIIUper Team",ssid:683985},
+{name:"F. Torres",country:"Spain",flag:"🇪🇸",pos:"FWD",pot:2,bid:19,team:"Xenathon Returns",ssid:null},
+{name:"V. Gyokeres",country:"Sweden",flag:"🇸🇪",pos:"FWD",pot:2,bid:41,team:"Baby's Day Out",ssid:798757},
+{name:"C. Gakpo",country:"Netherlands",flag:"🇳🇱",pos:"FWD",pot:2,bid:75,team:"Schweinsteiger FC",ssid:945543},
+{name:"M. Thuram",country:"France",flag:"🇫🇷",pos:"FWD",pot:2,bid:10,team:"Nutmeg Cartel",ssid:null},
+{name:"G. Ramos",country:"Portugal",flag:"🇵🇹",pos:"FWD",pot:2,bid:12,team:"Xenathon Returns",ssid:null},
+{name:"B. Embolo",country:"Switzerland",flag:"🇨🇭",pos:"FWD",pot:2,bid:29,team:"Ballbreakers",ssid:271684},
+{name:"D. Nunez",country:"Uruguay",flag:"🇺🇾",pos:"FWD",pot:2,bid:28,team:"Trikaal",ssid:951340},
+{name:"I. Toney",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"FWD",pot:2,bid:null,team:null,ssid:null},
+// POT 2 MID
+{name:"Pedri",country:"Spain",flag:"🇪🇸",pos:"MID",pot:2,bid:70,team:"Hitman Stars",ssid:885027},
+{name:"R. Cherki",country:"France",flag:"🇫🇷",pos:"MID",pot:2,bid:60,team:"Hitman Stars",ssid:1004018},
+{name:"B. Barcola",country:"France",flag:"🇫🇷",pos:"MID",pot:2,bid:16,team:"Wirtz Case Scenario",ssid:1014867},
+{name:"J. Musiala",country:"Germany",flag:"🇩🇪",pos:"MID",pot:2,bid:85,team:"Schweinsteiger FC",ssid:945782},
+{name:"E. Eze",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:2,bid:6,team:"Wirtz Case Scenario",ssid:779463},
+{name:"Bernardo Silva",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:2,bid:51,team:"Ballbreakers",ssid:279051},
+{name:"R. Leao",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:2,bid:40,team:"Xenathon Returns",ssid:826469},
+{name:"N. Williams",country:"Spain",flag:"🇪🇸",pos:"MID",pot:2,bid:75,team:"Dadmots Army",ssid:1070670},
+{name:"D. Olmo",country:"Spain",flag:"🇪🇸",pos:"MID",pot:2,bid:50,team:"RK Express",ssid:679266},
+// POT 2 DEF
+{name:"J. Kounde",country:"France",flag:"🇫🇷",pos:"DEF",pot:2,bid:53,team:"SIIIUper Team",ssid:710318},
+{name:"D. Upamecano",country:"France",flag:"🇫🇷",pos:"DEF",pot:2,bid:46,team:"Geriatric Galacticos",ssid:800602},
+{name:"J. Tah",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:2,bid:40,team:"Trikaal",ssid:298547},
+{name:"N. Schlotterbeck",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:2,bid:39,team:"Ballbreakers",ssid:815484},
+{name:"J. Cancelo",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:2,bid:40,team:"RK Express",ssid:280944},
+{name:"W. Saliba",country:"France",flag:"🇫🇷",pos:"DEF",pot:2,bid:42,team:"Wirtz Case Scenario",ssid:824738},
+{name:"Marquinhos",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:2,bid:58,team:"Nutmeg Cartel",ssid:105888},
+{name:"Theo Hernandez",country:"France",flag:"🇫🇷",pos:"DEF",pot:2,bid:41,team:"Geriatric Galacticos",ssid:686306},
+// POT 2 GK
+{name:"A. Nubel",country:"Germany",flag:"🇩🇪",pos:"GK",pot:2,bid:null,team:null,ssid:null},
+{name:"B. Verbruggen",country:"Netherlands",flag:"🇳🇱",pos:"GK",pot:2,bid:29,team:"Geriatric Galacticos",ssid:null},
+{name:"M. Flekken",country:"Netherlands",flag:"🇳🇱",pos:"GK",pot:2,bid:null,team:null,ssid:null},
+{name:"R. Silva",country:"Portugal",flag:"🇵🇹",pos:"GK",pot:2,bid:null,team:null,ssid:null},
+{name:"J. Sa",country:"Portugal",flag:"🇵🇹",pos:"GK",pot:2,bid:null,team:null,ssid:null},
+{name:"G. Kobel",country:"Switzerland",flag:"🇨🇭",pos:"GK",pot:2,bid:26,team:"Ballbreakers",ssid:null},
+{name:"Y. Bounou",country:"Morocco",flag:"🇲🇦",pos:"GK",pot:2,bid:25,team:"Nutmeg Cartel",ssid:271671},
+// POT 3 FWD
+{name:"R. Lukaku",country:"Belgium",flag:"🇧🇪",pos:"FWD",pot:3,bid:49,team:"Baby's Day Out",ssid:176207},
+{name:"Son",country:"Korea",flag:"🇰🇷",pos:"FWD",pot:3,bid:26,team:"Dadmots Army",ssid:119985},
+{name:"M. Depay",country:"Netherlands",flag:"🇳🇱",pos:"FWD",pot:3,bid:46,team:"Geriatric Galacticos",ssid:155793},
+{name:"M. Cunha",country:"Brazil",flag:"🇧🇷",pos:"FWD",pot:3,bid:46,team:"Sunday the King Plays",ssid:826467},
+{name:"P. Schick",country:"Czechia",flag:"🇨🇿",pos:"FWD",pot:3,bid:25,team:"SIIIUper Team",ssid:392749},
+{name:"N. Woltemade",country:"Germany",flag:"🇩🇪",pos:"FWD",pot:3,bid:23,team:"Xenathon Returns",ssid:null},
+{name:"A. Semenyo",country:"Ghana",flag:"🇬🇭",pos:"FWD",pot:3,bid:19,team:"Nutmeg Cartel",ssid:null},
+{name:"J. David",country:"Canada",flag:"🇨🇦",pos:"FWD",pot:3,bid:14,team:"Ballbreakers",ssid:null},
+{name:"Ueda",country:"Japan",flag:"🇯🇵",pos:"FWD",pot:3,bid:20,team:"Hitman Stars",ssid:null},
+{name:"R. Jimenez",country:"Mexico",flag:"🇲🇽",pos:"FWD",pot:3,bid:36,team:"Xenathon Returns",ssid:132831},
+// POT 3 MID
+{name:"M. Odegaard",country:"Norway",flag:"🇳🇴",pos:"MID",pot:3,bid:36,team:"Baby's Day Out",ssid:534857},
+{name:"S. Mane",country:"Senegal",flag:"🇸🇳",pos:"MID",pot:3,bid:25,team:"Schweinsteiger FC",ssid:176295},
+{name:"Enzo Fernandez",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:3,bid:66,team:"Dadmots Army",ssid:947246},
+{name:"J. Doku",country:"Belgium",flag:"🇧🇪",pos:"MID",pot:3,bid:48,team:"Geriatric Galacticos",ssid:851741},
+{name:"K. de Bruyne",country:"Belgium",flag:"🇧🇪",pos:"MID",pot:3,bid:49,team:"Wirtz Case Scenario",ssid:70867},
+{name:"M. Rashford",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:3,bid:31,team:"Trikaal",ssid:426414},
+{name:"D. Doue",country:"France",flag:"🇫🇷",pos:"MID",pot:3,bid:25,team:"Stretford Royalty",ssid:null},
+{name:"F. Wirtz",country:"Germany",flag:"🇩🇪",pos:"MID",pot:3,bid:102,team:"Trikaal",ssid:889798},
+{name:"Rodri",country:"Spain",flag:"🇪🇸",pos:"MID",pot:3,bid:26,team:"Baby's Day Out",ssid:680588},
+{name:"F. Valverde",country:"Uruguay",flag:"🇺🇾",pos:"MID",pot:3,bid:55,team:"Nutmeg Cartel",ssid:752652},
+// POT 3 DEF
+{name:"R. James",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:3,bid:41,team:"SIIIUper Team",ssid:845014},
+{name:"J. Timber",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:3,bid:20,team:"Nutmeg Cartel",ssid:961085},
+{name:"M. Guehi",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:3,bid:38,team:"Dadmots Army",ssid:900174},
+{name:"M. Gusto",country:"France",flag:"🇫🇷",pos:"DEF",pot:3,bid:1,team:"Schweinsteiger FC",ssid:null},
+{name:"Doan",country:"Japan",flag:"🇯🇵",pos:"DEF",pot:3,bid:13,team:"Baby's Day Out",ssid:null},
+{name:"M. Van de Ven",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:3,bid:33,team:"Wirtz Case Scenario",ssid:938044},
+{name:"M. Cucurella",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:3,bid:54,team:"Ballbreakers",ssid:795938},
+// POT 4 FWD
+{name:"Budimir",country:"Croatia",flag:"🇭🇷",pos:"FWD",pot:4,bid:8,team:"Wirtz Case Scenario",ssid:null},
+{name:"A. Sorloth",country:"Norway",flag:"🇳🇴",pos:"FWD",pot:4,bid:30,team:"Xenathon Returns",ssid:null},
+{name:"Iglesias",country:"Spain",flag:"🇪🇸",pos:"FWD",pot:4,bid:null,team:null,ssid:null},
+{name:"Ndoye",country:"Switzerland",flag:"🇨🇭",pos:"FWD",pot:4,bid:39,team:"Trikaal",ssid:null},
+{name:"S. Gimenez",country:"Mexico",flag:"🇲🇽",pos:"FWD",pot:4,bid:1,team:"Stretford Royalty",ssid:null},
+{name:"N. Jackson",country:"Senegal",flag:"🇸🇳",pos:"FWD",pot:4,bid:25,team:"Stretford Royalty",ssid:null},
+{name:"Undav",country:"Germany",flag:"🇩🇪",pos:"FWD",pot:4,bid:30,team:"Stretford Royalty",ssid:null},
+// POT 4 MID
+{name:"L. Sane",country:"Germany",flag:"🇩🇪",pos:"MID",pot:4,bid:29.5,team:"Hitman Stars",ssid:null},
+{name:"M. Rogers",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:4,bid:31.5,team:"Geriatric Galacticos",ssid:null},
+{name:"Neymar",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:4,bid:7.5,team:"Geriatric Galacticos",ssid:133898},
+{name:"Al Dawsari",country:"Saudi Arabia",flag:"🇸🇦",pos:"MID",pot:4,bid:4,team:"Schweinsteiger FC",ssid:null},
+{name:"H. Calhanoglu",country:"Turkey",flag:"🇹🇷",pos:"MID",pot:4,bid:27,team:"RK Express",ssid:null},
+{name:"A. Gordon",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:4,bid:22,team:"Stretford Royalty",ssid:null},
+{name:"D. Rice",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:4,bid:40,team:"Stretford Royalty",ssid:844285},
+{name:"K. Yildiz",country:"Turkey",flag:"🇹🇷",pos:"MID",pot:4,bid:20,team:"Geriatric Galacticos",ssid:null},
+{name:"A. Guler",country:"Turkey",flag:"🇹🇷",pos:"MID",pot:4,bid:36.5,team:"Wirtz Case Scenario",ssid:null},
+{name:"C. Pulisic",country:"United States",flag:"🇺🇸",pos:"MID",pot:4,bid:35,team:"Schweinsteiger FC",ssid:null},
+{name:"Kubo",country:"Japan",flag:"🇯🇵",pos:"MID",pot:4,bid:15.5,team:"Baby's Day Out",ssid:null},
+{name:"F. de Jong",country:"Netherlands",flag:"🇳🇱",pos:"MID",pot:4,bid:18,team:"Xenathon Returns",ssid:null},
+// POT 4 DEF
+{name:"L. Hernandez",country:"France",flag:"🇫🇷",pos:"DEF",pot:4,bid:1.5,team:"Hitman Stars",ssid:null},
+{name:"L. Digne",country:"France",flag:"🇫🇷",pos:"DEF",pot:4,bid:10,team:"Hitman Stars",ssid:null},
+{name:"Kim Min Jae",country:"Korea",flag:"🇰🇷",pos:"DEF",pot:4,bid:7,team:"Wirtz Case Scenario",ssid:null},
+{name:"N. Ake",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:4,bid:7,team:"Baby's Day Out",ssid:null},
+{name:"Murillo",country:"Panama",flag:"🇵🇦",pos:"DEF",pot:4,bid:1,team:"Nutmeg Cartel",ssid:null},
+{name:"D. Dalot",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:4,bid:5,team:"Baby's Day Out",ssid:null},
+{name:"A. Robertson",country:"Scotland",flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",pos:"DEF",pot:4,bid:4,team:"Stretford Royalty",ssid:null},
+{name:"Cubarsi",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:4,bid:76,team:"Hitman Stars",ssid:null},
+{name:"M. Akanji",country:"Switzerland",flag:"🇨🇭",pos:"DEF",pot:4,bid:17,team:"Trikaal",ssid:null},
+{name:"R. Araujo",country:"Uruguay",flag:"🇺🇾",pos:"DEF",pot:4,bid:7.5,team:"Xenathon Returns",ssid:null},
+{name:"A. Robinson",country:"United States",flag:"🇺🇸",pos:"DEF",pot:4,bid:7,team:"Nutmeg Cartel",ssid:null},
+{name:"J. Gvardiol",country:"Croatia",flag:"🇭🇷",pos:"DEF",pot:4,bid:10,team:"Nutmeg Cartel",ssid:null},
+{name:"Ruben Dias",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:4,bid:38,team:"Stretford Royalty",ssid:706328},
+// POT 4 GK
+{name:"A. Schlager",country:"Austria",flag:"🇦🇹",pos:"GK",pot:4,bid:3.5,team:"Trikaal",ssid:null},
+{name:"Pentz",country:"Austria",flag:"🇦🇹",pos:"GK",pot:4,bid:null,team:null,ssid:null},
+{name:"Lammens",country:"Belgium",flag:"🇧🇪",pos:"GK",pot:4,bid:null,team:null,ssid:null},
+{name:"Jo Hyeon-Woo",country:"Korea",flag:"🇰🇷",pos:"GK",pot:4,bid:null,team:null,ssid:null},
+{name:"Roefs",country:"Netherlands",flag:"🇳🇱",pos:"GK",pot:4,bid:null,team:null,ssid:null},
+{name:"Rulli",country:"Argentina",flag:"🇦🇷",pos:"GK",pot:4,bid:null,team:null,ssid:null},
+{name:"Livakovic",country:"Croatia",flag:"🇭🇷",pos:"GK",pot:4,bid:5.5,team:"RK Express",ssid:null},
+// POT 5 FWD
+{name:"Bakambu",country:"Congo",flag:"🇨🇬",pos:"FWD",pot:5,bid:1,team:"Dadmots Army",ssid:null},
+{name:"Sanabria",country:"Paraguay",flag:"🇵🇾",pos:"FWD",pot:5,bid:null,team:null,ssid:null},
+{name:"J. Felix",country:"Portugal",flag:"🇵🇹",pos:"FWD",pot:5,bid:10.5,team:"Geriatric Galacticos",ssid:null},
+{name:"I. Ndiaye",country:"Senegal",flag:"🇸🇳",pos:"FWD",pot:5,bid:9.5,team:"Stretford Royalty",ssid:null},
+{name:"Shomurodov",country:"Uzbekistan",flag:"🇺🇿",pos:"FWD",pot:5,bid:null,team:null,ssid:null},
+{name:"Hlozek",country:"Czechia",flag:"🇨🇿",pos:"FWD",pot:5,bid:null,team:null,ssid:null},
+{name:"Mateta",country:"France",flag:"🇫🇷",pos:"FWD",pot:5,bid:1,team:"Stretford Royalty",ssid:null},
+{name:"Wood",country:"New Zealand",flag:"🇳🇿",pos:"FWD",pot:5,bid:null,team:null,ssid:null},
+{name:"Beier",country:"Germany",flag:"🇩🇪",pos:"FWD",pot:5,bid:1,team:"Geriatric Galacticos",ssid:null},
+// POT 5 MID
+{name:"Sabitzer",country:"Austria",flag:"🇦🇹",pos:"MID",pot:5,bid:20,team:"Trikaal",ssid:null},
+{name:"Seko Fofana",country:"Ivory Coast",flag:"🇨🇮",pos:"MID",pot:5,bid:null,team:null,ssid:null},
+{name:"M. Caicedo",country:"Ecuador",flag:"🇪🇨",pos:"MID",pot:5,bid:3,team:"RK Express",ssid:null},
+{name:"Saibari",country:"Morocco",flag:"🇲🇦",pos:"MID",pot:5,bid:20.5,team:"Geriatric Galacticos",ssid:null},
+{name:"Q. Timber",country:"Netherlands",flag:"🇳🇱",pos:"MID",pot:5,bid:null,team:null,ssid:null},
+{name:"Gomez",country:"Paraguay",flag:"🇵🇾",pos:"MID",pot:5,bid:1,team:"Dadmots Army",ssid:null},
+{name:"Vargas",country:"Switzerland",flag:"🇨🇭",pos:"MID",pot:5,bid:15,team:"Nutmeg Cartel",ssid:null},
+{name:"Bruno Guimares",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:5,bid:28,team:"Hitman Stars",ssid:null},
+{name:"F. Ruiz",country:"Spain",flag:"🇪🇸",pos:"MID",pot:5,bid:25.5,team:"Xenathon Returns",ssid:null},
+{name:"A. McAllister",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:5,bid:25.5,team:"Wirtz Case Scenario",ssid:null},
+{name:"J. Enciso",country:"Paraguay",flag:"🇵🇾",pos:"MID",pot:5,bid:1,team:"Baby's Day Out",ssid:null},
+{name:"L. Trossard",country:"Belgium",flag:"🇧🇪",pos:"MID",pot:5,bid:46,team:"RK Express",ssid:null},
+// POT 5 DEF
+{name:"Ait-Nouri",country:"Algeria",flag:"🇩🇿",pos:"DEF",pot:5,bid:6,team:"Baby's Day Out",ssid:null},
+{name:"C. Romero",country:"Argentina",flag:"🇦🇷",pos:"DEF",pot:5,bid:16.5,team:"SIIIUper Team",ssid:null},
+{name:"I. Konate",country:"France",flag:"🇫🇷",pos:"DEF",pot:5,bid:2,team:"Xenathon Returns",ssid:null},
+{name:"D. Raum",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:5,bid:26,team:"RK Express",ssid:null},
+{name:"K. Koulibaly",country:"Senegal",flag:"🇸🇳",pos:"DEF",pot:5,bid:null,team:null,ssid:null},
+{name:"Grimaldo",country:"Spain",flag:"🇪🇸",pos:"DEF",pot:5,bid:4,team:"Xenathon Returns",ssid:null},
+{name:"Tomiyasu",country:"Japan",flag:"🇯🇵",pos:"DEF",pot:5,bid:null,team:null,ssid:null},
+{name:"A. Davies",country:"Canada",flag:"🇨🇦",pos:"DEF",pot:5,bid:3,team:"Nutmeg Cartel",ssid:null},
+{name:"T. Meunier",country:"Belgium",flag:"🇧🇪",pos:"DEF",pot:5,bid:12,team:"Wirtz Case Scenario",ssid:null},
+{name:"P. Estupinan",country:"Ecuador",flag:"🇪🇨",pos:"DEF",pot:5,bid:10,team:"Dadmots Army",ssid:null},
+{name:"E. Konsa",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:5,bid:38,team:"Trikaal",ssid:null},
+// NOMINATIONS POT - GK
+{name:"H. Galindez",country:"Ecuador",flag:"🇪🇨",pos:"GK",pot:"NOM",bid:4,team:"RK Express",ssid:null},
+{name:"S. Rochet",country:"Uruguay",flag:"🇺🇾",pos:"GK",pot:"NOM",bid:2.5,team:"RK Express",ssid:null},
+{name:"M. Crepeau",country:"Canada",flag:"🇨🇦",pos:"GK",pot:"NOM",bid:1.5,team:"SIIIUper Team",ssid:null},
+{name:"C. Acevedo",country:"Mexico",flag:"🇲🇽",pos:"GK",pot:"NOM",bid:null,team:null,ssid:null},
+{name:"V. Johansson",country:"Sweden",flag:"🇸🇪",pos:"GK",pot:"NOM",bid:8,team:"Xenathon Returns",ssid:null},
+{name:"L. Zidane",country:"Algeria",flag:"🇩🇿",pos:"GK",pot:"NOM",bid:null,team:null,ssid:null},
+{name:"G. Ochoa",country:"Mexico",flag:"🇲🇽",pos:"GK",pot:"NOM",bid:null,team:null,ssid:null},
+// NOMINATIONS - DEF
+{name:"J. Ryerson",country:"Norway",flag:"🇳🇴",pos:"DEF",pot:"NOM",bid:55,team:"Stretford Royalty",ssid:null},
+{name:"J. Mojica",country:"Colombia",flag:"🇨🇴",pos:"DEF",pot:"NOM",bid:10,team:"Sunday the King Plays",ssid:null},
+{name:"J. Vasquez",country:"Mexico",flag:"🇲🇽",pos:"DEF",pot:"NOM",bid:9,team:"Schweinsteiger FC",ssid:null},
+{name:"R. Veiga",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:"NOM",bid:8,team:"Geriatric Galacticos",ssid:null},
+{name:"M. De Cuyper",country:"Belgium",flag:"🇧🇪",pos:"DEF",pot:"NOM",bid:2,team:"Hitman Stars",ssid:null},
+{name:"J. Ordonez",country:"Ecuador",flag:"🇪🇨",pos:"DEF",pot:"NOM",bid:6,team:"Hitman Stars",ssid:null},
+{name:"D. Sanchez",country:"Colombia",flag:"🇨🇴",pos:"DEF",pot:"NOM",bid:8,team:"Ballbreakers",ssid:null},
+{name:"Bremer",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:"NOM",bid:null,team:null,ssid:null},
+{name:"T. Livramento",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:"NOM",bid:1,team:"Stretford Royalty",ssid:null},
+{name:"M. Thiaw",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:"NOM",bid:null,team:null,ssid:null},
+{name:"N. O'Reilly",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:"NOM",bid:59,team:"Schweinsteiger FC",ssid:null},
+{name:"D. Munoz",country:"Colombia",flag:"🇨🇴",pos:"DEF",pot:"NOM",bid:10.5,team:"Ballbreakers",ssid:null},
+{name:"A. Sandro",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:"NOM",bid:35,team:"Hitman Stars",ssid:null},
+{name:"P. Hincapie",country:"Ecuador",flag:"🇪🇨",pos:"DEF",pot:"NOM",bid:8.5,team:"Ballbreakers",ssid:null},
+{name:"G. Inacio",country:"Portugal",flag:"🇵🇹",pos:"DEF",pot:"NOM",bid:28,team:"Sunday the King Plays",ssid:null},
+{name:"G. Doue",country:"Ivory Coast",flag:"🇨🇮",pos:"DEF",pot:"NOM",bid:1,team:"Geriatric Galacticos",ssid:null},
+{name:"T. Castagne",country:"Belgium",flag:"🇧🇪",pos:"DEF",pot:"NOM",bid:3.5,team:"Nutmeg Cartel",ssid:null},
+{name:"N. Molina",country:"Argentina",flag:"🇦🇷",pos:"DEF",pot:"NOM",bid:23,team:"Dadmots Army",ssid:null},
+{name:"N. Otamendi",country:"Argentina",flag:"🇦🇷",pos:"DEF",pot:"NOM",bid:5,team:"Trikaal",ssid:null},
+{name:"N. Tagliafico",country:"Argentina",flag:"🇦🇷",pos:"DEF",pot:"NOM",bid:26,team:"Schweinsteiger FC",ssid:null},
+{name:"C. Montes",country:"Mexico",flag:"🇲🇽",pos:"DEF",pot:"NOM",bid:1,team:"RK Express",ssid:null},
+{name:"D. Alaba",country:"Austria",flag:"🇦🇹",pos:"DEF",pot:"NOM",bid:1,team:"Trikaal",ssid:null},
+{name:"R. Ibanez",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:"NOM",bid:3.5,team:"Stretford Royalty",ssid:null},
+{name:"Lisandro Martinez",country:"Argentina",flag:"🇦🇷",pos:"DEF",pot:"NOM",bid:6.5,team:"Sunday the King Plays",ssid:null},
+// NOMINATIONS - MID
+{name:"G. Simeone",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:"NOM",bid:5,team:"Xenathon Returns",ssid:null},
+{name:"C. de Ketelaere",country:"Belgium",flag:"🇧🇪",pos:"MID",pot:"NOM",bid:25.5,team:"RK Express",ssid:null},
+{name:"A. Nusa",country:"Norway",flag:"🇳🇴",pos:"MID",pot:"NOM",bid:15.5,team:"Ballbreakers",ssid:null},
+{name:"G. Martinelli",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:"NOM",bid:9,team:"Wirtz Case Scenario",ssid:null},
+{name:"K. Mainoo",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:"NOM",bid:1,team:"Ballbreakers",ssid:null},
+{name:"M. Akliouche",country:"France",flag:"🇫🇷",pos:"MID",pot:"NOM",bid:1,team:"Xenathon Returns",ssid:null},
+{name:"J. Rodriguez",country:"Colombia",flag:"🇨🇴",pos:"MID",pot:"NOM",bid:21,team:"Ballbreakers",ssid:null},
+{name:"S. McTominay",country:"Scotland",flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",pos:"MID",pot:"NOM",bid:11,team:"Ballbreakers",ssid:null},
+{name:"J. Neves",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:"NOM",bid:24.5,team:"Xenathon Returns",ssid:null},
+{name:"G. De Arrascaeta",country:"Uruguay",flag:"🇺🇾",pos:"MID",pot:"NOM",bid:2,team:"Sunday the King Plays",ssid:null},
+{name:"M. Araujo",country:"Uruguay",flag:"🇺🇾",pos:"MID",pot:"NOM",bid:13.5,team:"Hitman Stars",ssid:null},
+{name:"J. Arias",country:"Colombia",flag:"🇨🇴",pos:"MID",pot:"NOM",bid:4,team:"Ballbreakers",ssid:null},
+{name:"G. Xhaka",country:"Switzerland",flag:"🇨🇭",pos:"MID",pot:"NOM",bid:4.5,team:"SIIIUper Team",ssid:null},
+{name:"P. Sulc",country:"Czechia",flag:"🇨🇿",pos:"MID",pot:"NOM",bid:8,team:"Baby's Day Out",ssid:null},
+{name:"R. Mahrez",country:"Algeria",flag:"🇩🇿",pos:"MID",pot:"NOM",bid:4.5,team:"Baby's Day Out",ssid:null},
+{name:"R. De Paul",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:"NOM",bid:2.5,team:"Trikaal",ssid:null},
+{name:"T. Reijnders",country:"Netherlands",flag:"🇳🇱",pos:"MID",pot:"NOM",bid:10.5,team:"Hitman Stars",ssid:null},
+{name:"A. Pavlovic",country:"Germany",flag:"🇩🇪",pos:"MID",pot:"NOM",bid:9.5,team:"Stretford Royalty",ssid:null},
+{name:"Vitinha",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:"NOM",bid:14,team:"SIIIUper Team",ssid:null},
+{name:"E. Anderson",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"MID",pot:"NOM",bid:4.5,team:"Dadmots Army",ssid:null},
+{name:"A. Rabiot",country:"France",flag:"🇫🇷",pos:"MID",pot:"NOM",bid:5,team:"Schweinsteiger FC",ssid:null},
+{name:"A. Tchouameni",country:"France",flag:"🇫🇷",pos:"MID",pot:"NOM",bid:9.5,team:"Stretford Royalty",ssid:null},
+{name:"P. Neto",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:"NOM",bid:9.5,team:"Stretford Royalty",ssid:null},
+{name:"B. Diaz",country:"Morocco",flag:"🇲🇦",pos:"MID",pot:"NOM",bid:40,team:"Hitman Stars",ssid:null},
+{name:"W. McKennie",country:"United States",flag:"🇺🇸",pos:"MID",pot:"NOM",bid:5,team:"Dadmots Army",ssid:null},
+{name:"L. Goretzka",country:"Germany",flag:"🇩🇪",pos:"MID",pot:"NOM",bid:7,team:"Wirtz Case Scenario",ssid:null},
+{name:"R. Gravenberch",country:"Netherlands",flag:"🇳🇱",pos:"MID",pot:"NOM",bid:11.5,team:"Nutmeg Cartel",ssid:null},
+{name:"Casemiro",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:"NOM",bid:9.5,team:"Trikaal",ssid:null},
+{name:"I. Perisic",country:"Croatia",flag:"🇭🇷",pos:"MID",pot:"NOM",bid:9,team:"Nutmeg Cartel",ssid:null},
+{name:"D. Kamada",country:"Japan",flag:"🇯🇵",pos:"MID",pot:"NOM",bid:3.5,team:"Xenathon Returns",ssid:null},
+{name:"A. Ezzalzouli",country:"Morocco",flag:"🇲🇦",pos:"MID",pot:"NOM",bid:2.5,team:"Ballbreakers",ssid:null},
+// NOMINATIONS - FWD
+{name:"E. Valencia",country:"Ecuador",flag:"🇪🇨",pos:"FWD",pot:"NOM",bid:14.5,team:"Ballbreakers",ssid:null},
+{name:"M. Taremi",country:"Iran",flag:"🇮🇷",pos:"FWD",pot:"NOM",bid:5,team:"Ballbreakers",ssid:null},
+{name:"E. Dzeko",country:"Bosnia & Herzegovina",flag:"🇧🇦",pos:"FWD",pot:"NOM",bid:1,team:"RK Express",ssid:null},
+{name:"I. Thiago",country:"Brazil",flag:"🇧🇷",pos:"FWD",pot:"NOM",bid:10.5,team:"Nutmeg Cartel",ssid:null},
+{name:"A. Kramaric",country:"Croatia",flag:"🇭🇷",pos:"FWD",pot:"NOM",bid:9,team:"Schweinsteiger FC",ssid:null},
+{name:"F. Balogun",country:"United States",flag:"🇺🇸",pos:"FWD",pot:"NOM",bid:4.5,team:"Hitman Stars",ssid:null},
+{name:"N. Madueke",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"FWD",pot:"NOM",bid:1,team:"Wirtz Case Scenario",ssid:null},
+{name:"D. Malen",country:"Netherlands",flag:"🇳🇱",pos:"FWD",pot:"NOM",bid:15,team:"Dadmots Army",ssid:null},
+{name:"M. Arnautovic",country:"Austria",flag:"🇦🇹",pos:"FWD",pot:"NOM",bid:1,team:"Schweinsteiger FC",ssid:null},
+{name:"L. Suarez",country:"Colombia",flag:"🇨🇴",pos:"FWD",pot:"NOM",bid:20,team:"RK Express",ssid:null},
+{name:"J. Quinones",country:"Mexico",flag:"🇲🇽",pos:"FWD",pot:"NOM",bid:12.5,team:"Hitman Stars",ssid:null},
+{name:"Endrick",country:"Brazil",flag:"🇧🇷",pos:"FWD",pot:"NOM",bid:5,team:"Dadmots Army",ssid:null},
+{name:"L. Henrique",country:"Brazil",flag:"🇧🇷",pos:"FWD",pot:"NOM",bid:14.5,team:"Sunday the King Plays",ssid:null},
+{name:"Y. Diomande",country:"Ivory Coast",flag:"🇨🇮",pos:"FWD",pot:"NOM",bid:1.5,team:"Baby's Day Out",ssid:null},
+// 1x1 NOMINATIONS
+{name:"T. Adams",country:"United States",flag:"🇺🇸",pos:"MID",pot:"1x1",bid:1,team:"Baby's Day Out",ssid:null},
+{name:"N. Paz",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:"1x1",bid:1,team:"Ballbreakers",ssid:null},
+{name:"J. van Hecke",country:"Netherlands",flag:"🇳🇱",pos:"DEF",pot:"1x1",bid:9,team:"Trikaal",ssid:null},
+{name:"N. Brown",country:"Germany",flag:"🇩🇪",pos:"DEF",pot:"1x1",bid:5.5,team:"Geriatric Galacticos",ssid:null},
+{name:"Z. Suzuki",country:"Japan",flag:"🇯🇵",pos:"GK",pot:"1x1",bid:1,team:"Hitman Stars",ssid:null},
+{name:"Lee Kang In",country:"Korea",flag:"🇰🇷",pos:"MID",pot:"1x1",bid:1,team:"RK Express",ssid:null},
+{name:"G. Varela",country:"Uruguay",flag:"🇺🇾",pos:"DEF",pot:"1x1",bid:5,team:"Schweinsteiger FC",ssid:null},
+{name:"S. Widmer",country:"Switzerland",flag:"🇨🇭",pos:"DEF",pot:"1x1",bid:8,team:"Sunday the King Plays",ssid:null},
+{name:"L. Modric",country:"Croatia",flag:"🇭🇷",pos:"MID",pot:"1x1",bid:2.5,team:"SIIIUper Team",ssid:null},
+{name:"A. Theate",country:"Belgium",flag:"🇧🇪",pos:"DEF",pot:"1x1",bid:1,team:"Trikaal",ssid:null},
+{name:"R. Rodriguez",country:"Switzerland",flag:"🇨🇭",pos:"DEF",pot:"1x1",bid:7.5,team:"SIIIUper Team",ssid:null},
+{name:"M. Merino",country:"Spain",flag:"🇪🇸",pos:"MID",pot:"1x1",bid:1,team:"Ballbreakers",ssid:null},
+{name:"N. Ngoy",country:"Belgium",flag:"🇧🇪",pos:"DEF",pot:"1x1",bid:8.5,team:"Dadmots Army",ssid:null},
+{name:"Gutierrez",country:"Mexico",flag:"🇲🇽",pos:"MID",pot:"1x1",bid:1,team:"Geriatric Galacticos",ssid:null},
+{name:"N. Elvedi",country:"Switzerland",flag:"🇨🇭",pos:"DEF",pot:"1x1",bid:8.5,team:"Sunday the King Plays",ssid:null},
+{name:"I. Sarr",country:"Senegal",flag:"🇸🇳",pos:"FWD",pot:"1x1",bid:1,team:"RK Express",ssid:null},
+{name:"Danilo",country:"Brazil",flag:"🇧🇷",pos:"DEF",pot:"1x1",bid:8,team:"Sunday the King Plays",ssid:null},
+{name:"J. Gimenez",country:"Uruguay",flag:"🇺🇾",pos:"DEF",pot:"1x1",bid:2,team:"SIIIUper Team",ssid:null},
+{name:"W. Pacho",country:"Ecuador",flag:"🇪🇨",pos:"DEF",pot:"1x1",bid:5,team:"Schweinsteiger FC",ssid:null},
+{name:"Y. Tielemans",country:"Belgium",flag:"🇧🇪",pos:"MID",pot:"1x1",bid:4.5,team:"Trikaal",ssid:null},
+{name:"K. Ajer",country:"Norway",flag:"🇳🇴",pos:"DEF",pot:"1x1",bid:1,team:"Wirtz Case Scenario",ssid:null},
+{name:"Gallardo",country:"Mexico",flag:"🇲🇽",pos:"DEF",pot:"1x1",bid:1,team:"Dadmots Army",ssid:null},
+{name:"L. Paqueta",country:"Brazil",flag:"🇧🇷",pos:"MID",pot:"1x1",bid:10,team:"Dadmots Army",ssid:null},
+{name:"Olivera",country:"Uruguay",flag:"🇺🇾",pos:"DEF",pot:"1x1",bid:5,team:"Hitman Stars",ssid:null},
+{name:"Gannon Doak",country:"Scotland",flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",pos:"MID",pot:"1x1",bid:1.5,team:"SIIIUper Team",ssid:null},
+{name:"U. Cakir",country:"Turkey",flag:"🇹🇷",pos:"GK",pot:"1x1",bid:4,team:"Schweinsteiger FC",ssid:null},
+{name:"S. Dest",country:"United States",flag:"🇺🇸",pos:"DEF",pot:"1x1",bid:8,team:"SIIIUper Team",ssid:null},
+{name:"K. Aktürkoglu",country:"Turkey",flag:"🇹🇷",pos:"FWD",pot:"1x1",bid:9.5,team:"Trikaal",ssid:null},
+{name:"M. Freese",country:"United States",flag:"🇺🇸",pos:"GK",pot:"1x1",bid:1,team:"Sunday the King Plays",ssid:null},
+{name:"T. Almada",country:"Argentina",flag:"🇦🇷",pos:"MID",pot:"1x1",bid:3,team:"SIIIUper Team",ssid:null},
+{name:"J. Stones",country:"England",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"DEF",pot:"1x1",bid:7.5,team:"Geriatric Galacticos",ssid:null},
+{name:"C. Summerville",country:"Netherlands",flag:"🇳🇱",pos:"MID",pot:"1x1",bid:2,team:"Sunday the King Plays",ssid:null},
+{name:"E. Demirovic",country:"Bosnia & Herzegovina",flag:"🇧🇦",pos:"FWD",pot:"1x1",bid:1,team:"Schweinsteiger FC",ssid:null},
+{name:"T. Buchanan",country:"Canada",flag:"🇨🇦",pos:"FWD",pot:"1x1",bid:1,team:"SIIIUper Team",ssid:null},
+{name:"R. Rangel",country:"Mexico",flag:"🇲🇽",pos:"GK",pot:"1x1",bid:1,team:"Sunday the King Plays",ssid:null},
+{name:"J. Lucumi",country:"Colombia",flag:"🇨🇴",pos:"DEF",pot:"1x1",bid:3.5,team:"Sunday the King Plays",ssid:null},
+{name:"Manzambi",country:"Switzerland",flag:"🇨🇭",pos:"MID",pot:"1x1",bid:1,team:"Geriatric Galacticos",ssid:null},
+{name:"A. Baena",country:"Spain",flag:"🇪🇸",pos:"MID",pot:"1x1",bid:1,team:"RK Express",ssid:null},
+{name:"M. Aebischer",country:"Switzerland",flag:"🇨🇭",pos:"MID",pot:"1x1",bid:1,team:"Schweinsteiger FC",ssid:null},
+{name:"V. Coufal",country:"Czechia",flag:"🇨🇿",pos:"DEF",pot:"1x1",bid:1,team:"SIIIUper Team",ssid:null},
+{name:"F. Nmecha",country:"Germany",flag:"🇩🇪",pos:"MID",pot:"1x1",bid:3,team:"Sunday the King Plays",ssid:null},
+{name:"S. Conceicao",country:"Portugal",flag:"🇵🇹",pos:"MID",pot:"1x1",bid:3,team:"SIIIUper Team",ssid:null},
+{name:"C. Vargas",country:"Colombia",flag:"🇨🇴",pos:"GK",pot:"1x1",bid:2.5,team:"Dadmots Army",ssid:null},
+{name:"Wolfe",country:"Norway",flag:"🇳🇴",pos:"DEF",pot:"1x1",bid:1,team:"Dadmots Army",ssid:null},
+{name:"M. Shobeir",country:"Egypt",flag:"🇪🇬",pos:"GK",pot:"1x1",bid:1,team:"Sunday the King Plays",ssid:null},
+];
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function fmtBid(b) {
+  if (b === null || b === undefined) return 'UNSOLD';
+  if (b === Math.floor(b)) return '$' + b;
+  return '$' + b.toFixed(1);
+}
+function fmtNum(n) {
+  if (n === Math.floor(n)) return '$' + n.toLocaleString();
+  return '$' + n.toFixed(1);
+}
+
+function stringToColor(str) {
+  let hash = 0;
+  for (const c of str) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+  return `hsl(${((hash % 360) + 360) % 360},50%,32%)`;
+}
+
+function initials(name) {
+  return name.split(' ').map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+}
+
+function playerAvatar(p, size = 40) {
+  const ini = initials(p.name);
+  const bg = stringToColor(p.country);
+  const fs = Math.round(size * 0.36);
+  const flagFs = Math.round(size * 0.34);
+  const imgUrl = p.ssid ? `https://api.sofascore.app/api/v1/player/${p.ssid}/image` : null;
+  if (imgUrl) {
+    return `<div class="avatar" style="width:${size}px;height:${size}px;position:relative;border-radius:50%;overflow:hidden;background:${bg};flex-shrink:0">
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:${fs}px">${ini}</div>
+      <span style="position:absolute;bottom:-1px;right:-1px;font-size:${flagFs}px;line-height:1">${p.flag}</span>
+    </div>`;
+  }
+  return `<div class="avatar" style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:${fs}px;position:relative;flex-shrink:0">
+    ${ini}<span style="position:absolute;bottom:-1px;right:-1px;font-size:${flagFs}px;line-height:1">${p.flag}</span>
+  </div>`;
+}
+
+function posBadge(pos) {
+  return `<span class="pos-badge pos-${pos}">${pos}</span>`;
+}
+
+function teamChip(teamName) {
+  if (!teamName) return `<span class="unsold-badge">UNSOLD</span>`;
+  const c = TEAM_COLOR[teamName] || '#888';
+  return `<span class="player-team-chip" style="background:${c}22;color:${c};border:1px solid ${c}44">${teamName}</span>`;
+}
+
+// ── Derived data ──
+const soldPlayers = PLAYERS.filter(p => p.bid !== null && p.team !== null);
+const totalPool = soldPlayers.reduce((s, p) => s + p.bid, 0);
+const mostExp = soldPlayers.slice().sort((a, b) => b.bid - a.bid)[0];
+
+// Team stats map
+const teamStats = {};
+TEAMS.forEach(t => {
+  const squad = soldPlayers.filter(p => p.team === t.name);
+  teamStats[t.name] = {
+    squad,
+    spend: squad.reduce((s, p) => s + p.bid, 0),
+    gk: squad.filter(p => p.pos === 'GK').length,
+    def: squad.filter(p => p.pos === 'DEF').length,
+    mid: squad.filter(p => p.pos === 'MID').length,
+    fwd: squad.filter(p => p.pos === 'FWD').length,
+    nationalities: new Set(squad.map(p => p.country)).size,
+    pot1Count: squad.filter(p => p.pot === 1).length,
+  };
+});
+
+// ══════════════════════════════════════════════
+// TAB NAVIGATION
+// ══════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = document.getElementById('tab-' + btn.dataset.tab);
+    panel.classList.add('active');
+    panel.classList.remove('fade-in');
+    void panel.offsetWidth;
+    panel.classList.add('fade-in');
+  });
+});
+
+// ══════════════════════════════════════════════
+// OVERVIEW TAB
+// ══════════════════════════════════════════════
+function renderOverview() {
+  // KPIs
+  const kpiGrid = document.getElementById('kpi-grid');
+  kpiGrid.innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-icon">🏟️</div>
+      <div class="kpi-val">14</div>
+      <div class="kpi-label">Total Teams</div>
+      <div class="kpi-sub">Fantasy Franchises</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-val">${soldPlayers.length}</div>
+      <div class="kpi-label">Players Sold</div>
+      <div class="kpi-sub">${PLAYERS.filter(p=>!p.team).length} unsold</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-val">${fmtNum(totalPool)}</div>
+      <div class="kpi-label">Total Pool</div>
+      <div class="kpi-sub">Avg ${fmtNum(Math.round(totalPool/14))}/team</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">⭐</div>
+      <div class="kpi-val">${fmtBid(mostExp.bid)}</div>
+      <div class="kpi-label">Top Bid</div>
+      <div class="kpi-sub">${mostExp.name} · ${mostExp.team}</div>
+    </div>
+  `;
+
+  // Leaderboard
+  const sorted = TEAMS.slice().sort((a, b) => teamStats[b.name].spend - teamStats[a.name].spend);
+  const maxSpend = teamStats[sorted[0].name].spend;
+  const lbList = document.getElementById('leaderboard-list');
+  lbList.innerHTML = sorted.map((t, i) => {
+    const ts = teamStats[t.name];
+    const pct = maxSpend > 0 ? (ts.spend / maxSpend * 100).toFixed(1) : 0;
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    return `<div class="lb-row">
+      <div class="lb-rank ${rankClass}">${i + 1}</div>
+      <div class="lb-name">${t.name}</div>
+      <div class="lb-bar-wrap">
+        <div class="lb-bar" style="width:${pct}%;background:${t.color}cc">
+          <span>${fmtNum(ts.spend)}</span>
+        </div>
+      </div>
+      <div class="lb-meta">${ts.squad.length} players</div>
+    </div>`;
+  }).join('');
+
+  // Top 10
+  const top10 = soldPlayers.slice().sort((a, b) => b.bid - a.bid).slice(0, 10);
+  const top10Grid = document.getElementById('top10-grid');
+  top10Grid.innerHTML = top10.map((p, i) => {
+    const tc = TEAM_COLOR[p.team] || '#888';
+    return `<div class="top10-card">
+      ${playerAvatar(p, 44)}
+      <div class="top10-info">
+        <div class="top10-name">${i + 1}. ${p.name}</div>
+        <div class="top10-bid">${fmtBid(p.bid)}</div>
+        <div class="top10-team" style="color:${tc}">${p.team}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// TEAMS TAB
+// ══════════════════════════════════════════════
+function renderTeams() {
+  const grid = document.getElementById('teams-grid');
+  const sortedTeams = TEAMS.slice().sort((a, b) => teamStats[b.name].spend - teamStats[a.name].spend);
+  grid.innerHTML = sortedTeams.map(t => {
+    const ts = teamStats[t.name];
+    const top3 = ts.squad.slice().sort((a, b) => b.bid - a.bid).slice(0, 3);
+    return `<div class="team-card" onclick="openTeamModal('${t.name.replace(/'/g, "\\'")}')">
+      <div class="team-card-top" style="background:${t.color}"></div>
+      <div class="team-card-body">
+        <div class="team-card-name" style="color:${t.color}">${t.name}</div>
+        <div class="team-stats">
+          <div class="team-stat">
+            <div class="team-stat-val" style="color:${t.color}">${fmtNum(ts.spend)}</div>
+            <div class="team-stat-label">Total Spend</div>
+          </div>
+          <div class="team-stat">
+            <div class="team-stat-val">${ts.squad.length}</div>
+            <div class="team-stat-label">Players</div>
+          </div>
+        </div>
+        <div class="team-pos-row">
+          <div class="pos-chip pos-GK">${ts.gk} GK</div>
+          <div class="pos-chip pos-DEF">${ts.def} DEF</div>
+          <div class="pos-chip pos-MID">${ts.mid} MID</div>
+          <div class="pos-chip pos-FWD">${ts.fwd} FWD</div>
+        </div>
+        <div class="team-top3">
+          <div class="team-top3-label">Top 3 Picks</div>
+          ${top3.map(p => `<div class="team-top3-player">
+            <span>${p.flag} ${p.name}</span>
+            <span>${fmtBid(p.bid)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openTeamModal(teamName) {
+  const t = TEAMS.find(t => t.name === teamName);
+  const ts = teamStats[teamName];
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = teamName;
+  document.getElementById('modal-title').style.color = t.color;
+  document.getElementById('modal-subtitle').textContent = `${ts.squad.length} players · Total spend: ${fmtNum(ts.spend)}`;
+
+  const posOrder = ['GK','DEF','MID','FWD'];
+  const byPos = {};
+  posOrder.forEach(p => byPos[p] = []);
+  ts.squad.forEach(p => {
+    if (byPos[p.pos]) byPos[p.pos].push(p);
+  });
+  posOrder.forEach(pos => byPos[pos].sort((a, b) => b.bid - a.bid));
+
+  let html = '';
+  posOrder.forEach(pos => {
+    if (byPos[pos].length === 0) return;
+    html += `<div class="modal-pos-group">
+      <div class="modal-pos-label">${pos} (${byPos[pos].length})</div>
+      ${byPos[pos].map(p => `<div class="modal-player-row">
+        ${playerAvatar(p, 36)}
+        <div style="flex:1;min-width:0">
+          <div class="modal-player-name">${p.name}</div>
+          <div class="modal-player-country">${p.flag} ${p.country} · Pot ${p.pot}</div>
+        </div>
+        ${posBadge(p.pos)}
+        <div class="modal-player-bid">${fmtBid(p.bid)}</div>
+      </div>`).join('')}
+    </div>`;
+  });
+
+  document.getElementById('modal-body').innerHTML = html;
+  overlay.classList.add('open');
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════
+// PLAYERS TAB
+// ══════════════════════════════════════════════
+function renderPlayers() {
+  // Populate team filter
+  const teamFilter = document.getElementById('team-filter');
+  if (teamFilter.options.length === 1) {
+    TEAMS.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.name; opt.textContent = t.name;
+      teamFilter.appendChild(opt);
+    });
+  }
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const pos = document.getElementById('pos-filter').value;
+  const team = document.getElementById('team-filter').value;
+  const sort = document.getElementById('sort-select').value;
+
+  let list = PLAYERS.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q) && !p.country.toLowerCase().includes(q)) return false;
+    if (pos && p.pos !== pos) return false;
+    if (team) {
+      if (team === '__unsold__') { if (p.team !== null) return false; }
+      else if (p.team !== team) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'bid-desc') list.sort((a, b) => (b.bid ?? -1) - (a.bid ?? -1));
+  else if (sort === 'bid-asc') list.sort((a, b) => (a.bid ?? Infinity) - (b.bid ?? Infinity));
+  else list.sort((a, b) => a.name.localeCompare(b.name));
+
+  document.getElementById('players-count').textContent = `Showing ${list.length} of ${PLAYERS.length} players`;
+
+  const container = document.getElementById('players-list');
+  container.innerHTML = list.map(p => {
+    const tc = p.team ? (TEAM_COLOR[p.team] || '#888') : null;
+    return `<div class="player-row">
+      <div class="player-flag">${p.flag}</div>
+      ${playerAvatar(p, 36)}
+      <div class="player-info">
+        <div class="player-name-row">
+          <span class="player-name">${p.name}</span>
+          ${posBadge(p.pos)}
+          <span class="pot-badge">P${p.pot}</span>
+        </div>
+        <div class="player-country-text">${p.country}</div>
+      </div>
+      ${p.team ? `<span class="player-team-chip" style="background:${tc}22;color:${tc};border:1px solid ${tc}44">${p.team}</span>` : `<span class="unsold-badge">UNSOLD</span>`}
+      <div class="player-bid-col">${p.bid !== null ? fmtBid(p.bid) : '–'}</div>
+    </div>`;
+  }).join('');
+}
+
+['search-input','pos-filter','team-filter','sort-select'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyFilters);
+  document.getElementById(id).addEventListener('change', applyFilters);
+});
+
+// ══════════════════════════════════════════════
+// STATS TAB
+// ══════════════════════════════════════════════
+function renderStats() {
+  // Country chart
+  const countryCounts = {};
+  soldPlayers.forEach(p => countryCounts[p.country] = (countryCounts[p.country] || 0) + 1);
+  const countryEntries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 15);
+  const maxCC = countryEntries[0][1];
+  const flagMap = {};
+  PLAYERS.forEach(p => flagMap[p.country] = p.flag);
+  document.getElementById('country-chart').innerHTML = countryEntries.map(([c, n]) => `
+    <div class="stat-bar-row">
+      <div class="stat-bar-label">${flagMap[c] || ''} ${c}</div>
+      <div class="stat-bar-wrap"><div class="stat-bar" style="width:${(n/maxCC*100).toFixed(1)}%"></div></div>
+      <div class="stat-bar-val">${n}</div>
+    </div>`).join('');
+
+  // Pot chart
+  const potOrder = [1,2,3,4,5,'NOM','1x1'];
+  const potSpend = {};
+  potOrder.forEach(pt => potSpend[pt] = 0);
+  soldPlayers.forEach(p => potSpend[p.pot] = (potSpend[p.pot] || 0) + p.bid);
+  const maxPS = Math.max(...Object.values(potSpend));
+  document.getElementById('pot-chart').innerHTML = potOrder.map(pt => {
+    const v = potSpend[pt] || 0;
+    const colors = {1:'#C9A800',2:'#1E88E5',3:'#43A047',4:'#E53935',5:'#8E24AA','NOM':'#FB8C00','1x1':'#00ACC1'};
+    return `<div class="stat-bar-row">
+      <div class="stat-bar-label">Pot ${pt}</div>
+      <div class="stat-bar-wrap"><div class="stat-bar" style="width:${maxPS>0?(v/maxPS*100).toFixed(1):0}%;background:${colors[pt]}"></div></div>
+      <div class="stat-bar-val">${fmtNum(v)}</div>
+    </div>`;
+  }).join('');
+
+  // Facts
+  const biggestSpend = TEAMS.reduce((a, b) => teamStats[a.name].spend > teamStats[b.name].spend ? a : b);
+  const mostPot1 = TEAMS.reduce((a, b) => teamStats[a.name].pot1Count > teamStats[b.name].pot1Count ? a : b);
+  const mostDiverse = TEAMS.reduce((a, b) => teamStats[a.name].nationalities > teamStats[b.name].nationalities ? a : b);
+  const pot1Sold = soldPlayers.filter(p => p.pot === 1);
+  const cheapestPot1 = pot1Sold.slice().sort((a, b) => a.bid - b.bid)[0];
+  const avgSquad = totalPool / 14;
+  const hotPot = potOrder.reduce((a, b) => (potSpend[a] || 0) > (potSpend[b] || 0) ? a : b);
+
+  document.getElementById('facts-list').innerHTML = [
+    `💰 <strong>Biggest Spend:</strong> ${biggestSpend.name} (${fmtNum(teamStats[biggestSpend.name].spend)} total)`,
+    `🏆 <strong>Star Power:</strong> ${mostPot1.name} with ${teamStats[mostPot1.name].pot1Count} Pot 1 players`,
+    `🌍 <strong>Most Diverse:</strong> ${mostDiverse.name} with ${teamStats[mostDiverse.name].nationalities} different nationalities`,
+    `💎 <strong>Best Steal:</strong> ${cheapestPot1?.name} — cheapest Pot 1 player at ${fmtBid(cheapestPot1?.bid)} by ${cheapestPot1?.team}`,
+    `📊 <strong>Avg Squad Cost:</strong> ${fmtNum(Math.round(avgSquad))} per team`,
+    `🔥 <strong>Hottest Pot:</strong> Pot ${hotPot} with ${fmtNum(potSpend[hotPot])} total spend`,
+  ].map(f => `<li>${f}</li>`).join('');
+
+  // Unsold notable
+  const unsoldNotable = PLAYERS.filter(p => p.team === null && (p.pot === 1 || p.pot === 2));
+  document.getElementById('unsold-grid').innerHTML = unsoldNotable.map(p => `
+    <div class="unsold-card">
+      ${playerAvatar(p, 40)}
+      <div class="unsold-card-name">${p.flag} ${p.name}</div>
+      <div class="unsold-card-meta">${p.country} · ${p.pos} · Pot ${p.pot}</div>
+      <span class="unsold-badge">UNSOLD</span>
+    </div>`).join('') || '<p style="color:var(--text-dim);font-size:0.85rem">All Pot 1 &amp; 2 players were sold!</p>';
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderOverview();
+renderTeams();
+renderPlayers();
+renderStats();
+</script>
+</body>
+</html>
