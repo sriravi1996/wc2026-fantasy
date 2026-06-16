@@ -1230,7 +1230,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 const SHEET_ID = '13fT3_4OrXRzuOEcIc3aBDJJK08ddvmUm9jW9ju1JKQc';
 const ROSTER_GID = '863229502';
-const ALLORIGINS = 'https://api.allorigins.win/raw?url=';
 
 function parseCSVLine(line) {
   const result = [];
@@ -1249,30 +1248,34 @@ function parseRosterCSV(csv) {
   const lines = csv.split('\n').map(l => l.trim()).filter(Boolean);
   const posSet = new Set(['GK','DEF','MID','FWD']);
   const data = {};
-  let headers = [];
 
-  for (let i = 0; i < lines.length; i++) {
+  // The round column headers (MD1, MD2, ...) appear in the first row of the CSV,
+  // NOT in each team's "Position,Player,..." row. Build a round→column-index map
+  // from the first row.
+  const firstRow = parseCSVLine(lines[0]);
+  const roundIdx = {};
+  ROUNDS.forEach(r => {
+    const rc = r.replace(/[^a-zA-Z0-9+]/g,'').toUpperCase();
+    for (let c = 0; c < firstRow.length; c++) {
+      const hc = firstRow[c].replace(/[^a-zA-Z0-9+]/g,'').toUpperCase();
+      if (hc && (hc === rc || hc.includes(rc))) { roundIdx[r] = c; break; }
+    }
+  });
+
+  for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    if (cols[0] === 'Position' || cols[0] === 'Pos' || cols[0] === 'POS') {
-      headers = cols;
-    }
-    if (posSet.has(cols[0])) {
-      const name = (cols[1]||'').replace(/^"|"$/g,'');
-      if (!name) continue;
-      const scores = {};
-      ROUNDS.forEach(r => {
-        const idx = headers.findIndex(h => {
-          const hc = h.replace(/[^a-zA-Z0-9+]/g,'').toUpperCase();
-          const rc = r.replace(/[^a-zA-Z0-9+]/g,'').toUpperCase();
-          return hc === rc || hc.includes(rc);
-        });
-        if (idx > 0 && cols[idx]) {
-          const v = parseInt(cols[idx], 10);
-          if (!isNaN(v)) scores[r] = v;
-        }
-      });
-      data[name] = scores;
-    }
+    if (!posSet.has(cols[0])) continue;
+    const name = (cols[1]||'').replace(/^"|"$/g,'');
+    if (!name || name === 'TOTAL SCORE') continue;
+    const scores = {};
+    ROUNDS.forEach(r => {
+      const idx = roundIdx[r];
+      if (idx !== undefined && cols[idx]) {
+        const v = parseInt(cols[idx], 10);
+        if (!isNaN(v)) scores[r] = v;
+      }
+    });
+    data[name] = scores;
   }
   return data;
 }
@@ -1288,14 +1291,14 @@ async function refreshData() {
   badge.textContent = 'Fetching...';
   badge.className = 'live';
   try {
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + ROSTER_GID;
-    const url = ALLORIGINS + encodeURIComponent(sheetURL);
-    const resp = await fetch(url, {cache:'no-store'});
+    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + ROSTER_GID;
+    const resp = await fetch(url, {redirect:'follow'});
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const csv = await resp.text();
     const sheetData = parseRosterCSV(csv);
 
     let updated = 0;
+    // First pass: update player scores from sheet data
     TEAMS.forEach(team => {
       team.players.forEach(p => {
         const key = Object.keys(sheetData).find(k => fuzzyMatch(k, p.name));
@@ -1308,7 +1311,17 @@ async function refreshData() {
           });
         }
       });
-      // Recompute team round totals from top 11
+    });
+
+    // Auto-detect completed rounds: a round is completed if ANY player has a score for it
+    ROUNDS.forEach(r => {
+      if (COMPLETED_ROUNDS.includes(r)) return;
+      const hasData = TEAMS.some(t => t.players.some(p => (p[r]||0) > 0));
+      if (hasData) COMPLETED_ROUNDS.push(r);
+    });
+
+    // Recompute team round totals from top 11
+    TEAMS.forEach(team => {
       COMPLETED_ROUNDS.forEach(r => {
         const s11 = [...team.players].sort((a,b) => (b[r]||0) - (a[r]||0)).slice(0,11);
         team.rounds[r] = s11.reduce((s,p) => s + (p[r]||0), 0);
